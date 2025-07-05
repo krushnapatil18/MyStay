@@ -64,7 +64,11 @@
             <% for(let listing of allListings){ %>
                 <a href="/listings/<%= listing._id %>" class="listing-links">
                 <div class="card listing-card" >
-                    <img src="<%= listing.image.url %>" class="card-img-top" alt="listing image" style="height: 20rem;">
+                    <% if (listing.images && listing.images.length > 0) { %>
+                        <img src="<%= listing.images[0].url %>" class="card-img-top" alt="listing image" style="height: 20rem;">
+                    <% } else { %>
+                        <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="card-img-top" alt="default listing image" style="height: 20rem;">
+                    <% } %>
                     <div class="card-img-overlay"></div>
             
                     <div class="card-body">

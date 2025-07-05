@@ -21,18 +21,12 @@
         </div>
 
         <div class="mb-3">
-            <label for="image" class="form-label">Upload Listing Image</label>
-            <input type="file" name="listing[image][url]" class="form-control" required>
+            <label for="images" class="form-label">Upload Listing Images (Max 10 images)</label>
+            <input type="file" name="listing[images]" class="form-control" multiple accept="image/*" required>
             <div class="invalid-feedback">
-                Please enter an image.
+                Please select at least one image.
             </div>
-        </div>
-        <div class="mb-3">
-            <label for="image" class="form-label">Image Filename</label>
-            <input type="text" placeholder="enter image filename" name="listing[image][filename]" class="form-control" required>
-            <div class="invalid-feedback">
-                Please enter an image filename.
-            </div>
+            <small class="form-text text-muted">You can select multiple images by holding Ctrl (or Cmd on Mac) while clicking.</small>
         </div>
 
         <div class="row">

@@ -1,5 +1,6 @@
 const Listing = require("../models/listing.js");
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const { cloudinary } = require("../cloudConfig.js");
 const mapToken = 'pk.eyJ1Ijoibm90a3Jzc25hIiwiYSI6ImNtY2hiY2VseDByeXUya3NkMmJuYWJsb3YifQ.5RBcbY_vT4Nvxg0XVa54FQ';
 const geocodingClient = mbxGeocoding({accessToken: mapToken});
 
@@ -55,12 +56,12 @@ module.exports.createListing = async (req, res) => {
         .send()
 
     const newListing = new Listing(req.body.listing);
-    // ✅ Attach uploaded image
-    if (req.file) {
-        newListing.image = {
-            url: req.file.path,
-            filename: req.file.filename
-        };
+    // ✅ Attach uploaded images
+    if (req.files && req.files.length > 0) {
+        newListing.images = req.files.map(file => ({
+            url: file.path,
+            filename: file.filename
+        }));
     }
 
     newListing.owner = req.user._id;
@@ -81,9 +82,15 @@ module.exports.renderEditForm = async(req, res)=>{
         return res.redirect("/listings");
     }
 
-    let originalImageUrl = listing.image.url;
-    originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_200");
-    res.render("listings/edit.ejs", {listing, originalImageUrl});
+    // Create thumbnail URLs for all images
+    let originalImageUrls = [];
+    if (listing.images && listing.images.length > 0) {
+        originalImageUrls = listing.images.map(img => ({
+            url: img.url.replace("/upload", "/upload/w_200"),
+            filename: img.filename
+        }));
+    }
+    res.render("listings/edit.ejs", {listing, originalImageUrls});
 
 }
 
@@ -93,11 +100,6 @@ module.exports.updateListing = async (req, res) => {
 
     // Prepare update data
     const listingData = { ...req.body.listing };
-    // If no new image uploaded, keep the old image
-    if (!req.file) {
-        // Remove image from update body so it doesn't overwrite
-        delete listingData.image;
-    }
 
     // Find the current listing from DB
     let listing = await Listing.findById(id);
@@ -119,12 +121,44 @@ module.exports.updateListing = async (req, res) => {
         listing[key] = listingData[key];
     }
 
-    // Only update image if new file is uploaded
-    if (req.file) {
-        listing.image = {
-            url: req.file.path,
-            filename: req.file.filename
-        };
+    // Handle image removal
+    if (req.body.imagesToRemove && Array.isArray(req.body.imagesToRemove)) {
+        const imagesToRemove = req.body.imagesToRemove.filter(filename => filename !== '');
+        
+        if (imagesToRemove.length > 0 && listing.images) {
+            // Find images to remove and delete from Cloudinary
+            const imagesToDelete = listing.images.filter(img => imagesToRemove.includes(img.filename));
+            
+            // Delete images from Cloudinary
+            for (let img of imagesToDelete) {
+                try {
+                    // Extract public_id from the URL
+                    const publicId = img.filename.split('.')[0]; // Remove file extension
+                    await cloudinary.uploader.destroy(publicId);
+                    console.log(`Deleted image from Cloudinary: ${publicId}`);
+                } catch (error) {
+                    console.error(`Error deleting image from Cloudinary: ${error.message}`);
+                }
+            }
+            
+            // Filter out images that are marked for removal
+            listing.images = listing.images.filter(img => !imagesToRemove.includes(img.filename));
+        }
+    }
+
+    // Handle new images if uploaded
+    if (req.files && req.files.length > 0) {
+        // Add new images to existing ones
+        const newImages = req.files.map(file => ({
+            url: file.path,
+            filename: file.filename
+        }));
+        
+        if (listing.images) {
+            listing.images = [...listing.images, ...newImages];
+        } else {
+            listing.images = newImages;
+        }
     }
 
     await listing.save();

@@ -16,22 +16,24 @@ const listingSchema = new Schema({
     maxlength: [1000, "Description too long"],
     default: "No description provided",
   },
-  image: {
-    filename: {
-      type: String,
-      // Not required — because image might not change during edit
-    },
-    url: {
-      type: String,
-      required: true,
-      validate: {
-        validator: function (v) {
-          return /^https?:\/\/.+/i.test(v); // Validates URL
-        },
-        message: props => `"${props.value}" is not a valid image URL`,
+  images: [
+    {
+      filename: {
+        type: String,
+        // Not required — because image might not change during edit
+      },
+      url: {
+        type: String,
+        required: true,
+        validate: {
+          validator: function (v) {
+            return /^https?:\/\/.+/i.test(v); // Validates URL
+          },
+          message: props => `"${props.value}" is not a valid image URL`,
+        }
       }
     }
-  },  
+  ],  
   price: {
     type: Number,
     required: [true, "Price is required"],

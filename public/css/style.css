@@ -101,6 +101,52 @@ body {
 .show-img{
     height: 30vh;
 }
+
+/* Carousel styles */
+.carousel-item img {
+    height: 30vh;
+    object-fit: cover;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.carousel-indicators {
+    bottom: 10px;
+}
+
+.carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 3px;
+}
+
+/* Image management styles */
+.remove-image-btn {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.remove-image-btn:hover {
+    opacity: 1;
+}
+
+.position-relative {
+    transition: opacity 0.3s ease;
+}
+
+.position-relative:hover .remove-image-btn {
+    opacity: 1;
+}
 .btns{
     display: flex;
 

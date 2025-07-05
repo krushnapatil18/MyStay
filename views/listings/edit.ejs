@@ -22,21 +22,30 @@
         </div>
 
         <div class="mb-3">
-           Original Listing Image <br>
-           <img src="<%= originalImageUrl %>" alt="Original Image">
+           <label class="form-label">Current Listing Images</label>
+           <% if (originalImageUrls && originalImageUrls.length > 0) { %>
+               <div class="row">
+                   <% originalImageUrls.forEach(function(img, index) { %>
+                       <div class="col-md-3 mb-2 position-relative">
+                           <img src="<%= img.url %>" alt="Listing Image <%= index + 1 %>" class="img-fluid rounded">
+                           <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 remove-image-btn" 
+                                   data-image-index="<%= index %>" data-image-filename="<%= img.filename %>">
+                               <i class="fas fa-times"></i>
+                           </button>
+                           <input type="hidden" name="imagesToRemove[]" value="" class="remove-image-input">
+                       </div>
+                   <% }); %>
+               </div>
+               <small class="form-text text-muted">Click the red X button to remove an image. Changes will be saved when you update the listing.</small>
+           <% } else { %>
+               <p class="text-muted">No images uploaded yet.</p>
+           <% } %>
         </div>
         
         <div class="mb-3">
-            <label for="image" class="form-label">Upload New Image</label>
-            <input type="file" name="listing[image][url]" placeholder="Image URL"  class="form-control" />
-        </div>
-         
-        <div class="mb-3">
-            <label for="image" class="form-label">Image Filename</label>
-            <input type="text" name="listing[image][filename]" placeholder="Image filename"  class="form-control" required/>
-            <div class="invalid-feedback">
-                Please enter an image filename.
-            </div>
+            <label for="images" class="form-label">Upload Additional Images (Max 10 total)</label>
+            <input type="file" name="listing[images]" class="form-control" multiple accept="image/*" />
+            <small class="form-text text-muted">New images will be added to existing ones. You can select multiple images.</small>
         </div>
 
         <div class="row">
@@ -90,3 +99,33 @@
     </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const removeButtons = document.querySelectorAll('.remove-image-btn');
+    const removeInputs = document.querySelectorAll('.remove-image-input');
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const imageIndex = this.getAttribute('data-image-index');
+            const imageFilename = this.getAttribute('data-image-filename');
+            const imageContainer = this.closest('.col-md-3');
+            
+            // Add filename to hidden input for removal
+            const hiddenInput = imageContainer.querySelector('.remove-image-input');
+            hiddenInput.value = imageFilename;
+            
+            // Hide the image container
+            imageContainer.style.display = 'none';
+            
+            // Show confirmation
+            this.innerHTML = '<i class="fas fa-check"></i>';
+            this.classList.remove('btn-danger');
+            this.classList.add('btn-success');
+            
+            // Optional: Show a message
+            console.log(`Image ${imageFilename} marked for removal`);
+        });
+    });
+});
+</script>
