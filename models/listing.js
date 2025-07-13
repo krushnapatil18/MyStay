@@ -98,5 +98,3 @@ listingSchema.post("findOneAndDelete", async (listing) =>{
 // 👇 Export the model
 const Listing = mongoose.model("Listing", listingSchema);
 module.exports = Listing;
-
-
