@@ -18,6 +18,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const bookingRouter = require("./routes/booking.js");
 
 // Connect to MongoDB
 
@@ -103,6 +104,8 @@ app.get('/', (req, res) => {
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
 app.use("/", userRouter);
+
+app.use("/", bookingRouter);
 
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));

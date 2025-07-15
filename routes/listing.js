@@ -14,7 +14,14 @@ const upload = multer({storage});
 const validateListing = (req, res, next)=>{
     let {error} = listingSchema.validate(req.body);  
     if(error){
-        throw new ExpressError(400, error.message);
+        req.flash("error", error.message);
+        if (req.method === "PUT") {
+            // Editing an existing listing
+            return res.redirect(`/listings/${req.params.id}/edit`);
+        } else {
+            // Creating a new listing
+            return res.redirect("/listings/new");
+        }
     }
     next();
 }  

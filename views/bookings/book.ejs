@@ -1,0 +1,37 @@
+<% layout("layouts/biolerplate.ejs") %>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-4">
+            <img src="<%= listing.images && listing.images[0] ? listing.images[0].url : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80' %>" alt="Listing image" class="rounded-3 me-3" style="width: 90px; height: 90px; object-fit: cover;">
+            <div>
+              <h4 class="mb-1"><%= listing.title %></h4>
+              <div class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> <%= listing.location %>, <%= listing.country %></div>
+              <div class="fw-bold mt-1" style="color: #fe424d;">₹<%= listing.price %> <span class="fw-normal text-secondary">/ night</span></div>
+            </div>
+          </div>
+          <hr>
+          <form action="/listings/<%= listing._id %>/book" method="post" class="needs-validation" novalidate>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="checkIn" class="form-label">Check-in <i class="fa-regular fa-calendar-days ms-1"></i></label>
+                <input type="date" name="checkIn" id="checkIn" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label for="checkOut" class="form-label">Check-out <i class="fa-regular fa-calendar-days ms-1"></i></label>
+                <input type="date" name="checkOut" id="checkOut" class="form-control" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="guests" class="form-label">Guests <i class="fa-solid fa-user-group ms-1"></i></label>
+              <input type="number" name="guests" id="guests" class="form-control" min="1" value="1" required>
+            </div>
+            <button class="btn reserve-btn w-100 py-2 mt-2" style="font-size:1.1rem;">Confirm and Reserve <i class="fa-solid fa-arrow-right ms-2"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

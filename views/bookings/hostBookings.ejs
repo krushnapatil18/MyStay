@@ -1,0 +1,131 @@
+<% layout("layouts/biolerplate.ejs") %>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <h2 class="mb-4">Bookings for My Listings</h2>
+      <% if (bookings.length === 0) { %>
+        <div class="alert alert-info">No bookings for your listings yet.</div>
+      <% } else { %>
+        <div class="row g-4">
+          <% bookings.forEach(booking => { %>
+            <div class="col-md-6 col-lg-4">
+              <div class="card shadow-sm border-0 rounded-4 h-100">
+                <img src="<%= booking.listing.images && booking.listing.images[0] ? booking.listing.images[0].url : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80' %>" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title mb-1"><%= booking.listing.title %></h5>
+                  <div class="text-muted mb-2" style="font-size:0.95rem;"><i class="fa-solid fa-location-dot me-1"></i> <%= booking.listing.location %>, <%= booking.listing.country %></div>
+                  <div class="mb-2">
+                    <% if (booking.status === 'cancelled') { %>
+                      <span class="badge bg-secondary">Cancelled</span>
+                    <% } else { %>
+                      <span class="badge bg-success">Confirmed</span>
+                    <% } %>
+                  </div>
+                  <div class="mb-2"><i class="fa-regular fa-calendar-days me-1"></i> <b><%= booking.checkIn.toDateString() %></b> - <b><%= booking.checkOut.toDateString() %></b></div>
+                  <div class="mb-2"><i class="fa-solid fa-user me-1"></i> Guest: <b><%= booking.user.username %></b></div>
+                  <div class="mb-2"><i class="fa-solid fa-user-group me-1"></i> <%= booking.guests %> guests</div>
+                  <div class="mb-2"><i class="fa-solid fa-indian-rupee-sign me-1"></i> <b>₹<%= booking.totalPrice %></b></div>
+                  <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-primary btn-sm mt-2">View Listing</a>
+                  <% if (booking.status !== 'cancelled' && new Date(booking.checkIn) > new Date()) { %>
+                    <form action="/host/bookings/<%= booking._id %>/cancel" method="POST" class="d-inline host-cancel-booking-form" data-booking-id="<%= booking._id %>">
+                      <button type="button" class="btn btn-outline-danger btn-sm mt-2 host-cancel-booking-btn" data-booking-id="<%= booking._id %>">
+                        Cancel
+                      </button>
+                    </form>
+                  <% } %>
+                  <% if (booking.status === 'cancelled' || new Date(booking.checkOut) < new Date()) { %>
+                    <form action="/host/bookings/<%= booking._id %>/delete" method="POST" class="d-inline host-delete-booking-form" data-booking-id="<%= booking._id %>">
+                      <button type="button" class="btn btn-outline-secondary btn-sm mt-2 host-delete-booking-btn" data-booking-id="<%= booking._id %>">
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Host Cancel Booking Modal -->
+<div class="modal fade" id="hostCancelBookingModal" tabindex="-1" aria-labelledby="hostCancelBookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hostCancelBookingModalLabel">Confirm Cancellation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to cancel this booking? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Booking</button>
+        <button type="button" class="btn btn-danger" id="hostConfirmCancelBookingBtn">Yes, Cancel Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Host Delete Booking Modal -->
+<div class="modal fade" id="hostDeleteBookingModal" tabindex="-1" aria-labelledby="hostDeleteBookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hostDeleteBookingModalLabel">Delete Booking</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to permanently delete this booking? This cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Booking</button>
+        <button type="button" class="btn btn-danger" id="hostConfirmDeleteBookingBtn">Yes, Delete Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Host cancel logic
+  let hostBookingIdToCancel = null;
+  let hostFormToCancel = null;
+
+  document.querySelectorAll('.host-cancel-booking-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      hostBookingIdToCancel = this.getAttribute('data-booking-id');
+      hostFormToCancel = document.querySelector(`form.host-cancel-booking-form[data-booking-id='${hostBookingIdToCancel}']`);
+      const modal = new bootstrap.Modal(document.getElementById('hostCancelBookingModal'));
+      modal.show();
+    });
+  });
+
+  document.getElementById('hostConfirmCancelBookingBtn').addEventListener('click', function() {
+    if (hostFormToCancel) {
+      hostFormToCancel.submit();
+    }
+  });
+
+  // Host delete logic
+  let hostBookingIdToDelete = null;
+  let hostFormToDelete = null;
+
+  document.querySelectorAll('.host-delete-booking-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      hostBookingIdToDelete = this.getAttribute('data-booking-id');
+      hostFormToDelete = document.querySelector(`form.host-delete-booking-form[data-booking-id='${hostBookingIdToDelete}']`);
+      const modal = new bootstrap.Modal(document.getElementById('hostDeleteBookingModal'));
+      modal.show();
+    });
+  });
+
+  document.getElementById('hostConfirmDeleteBookingBtn').addEventListener('click', function() {
+    if (hostFormToDelete) {
+      hostFormToDelete.submit();
+    }
+  });
+</script> 

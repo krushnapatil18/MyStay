@@ -7,7 +7,7 @@ const listingSchema = new Schema({
     type: String,
     required: [true, "Listing title is required"],
     trim: true,
-    minlength: [3, "Title must be at least 3 characters"],
+    minlength: [1, "Title must be at least 1 characters"],
     maxlength: [100, "Title must be under 100 characters"],
   },
   description: {

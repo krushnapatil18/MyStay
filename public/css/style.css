@@ -211,3 +211,48 @@ body {
     align-items: center;
     
 }
+
+/* Reserve Button (Airbnb style) */
+.reserve-btn {
+    background-color: #fe424d !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 0.5rem !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 1.5rem !important;
+    transition: background 0.2s;
+    box-shadow: none !important;
+}
+.reserve-btn:hover, .reserve-btn:focus {
+    background-color: #d7373f !important;
+    color: #fff !important;
+}
+
+/* Booking Card Modern UI */
+.card.shadow-lg, .card.shadow-sm {
+    border-radius: 1.25rem !important;
+    border: none !important;
+}
+.card .card-img-top.rounded-top-4 {
+    border-top-left-radius: 1.25rem !important;
+    border-top-right-radius: 1.25rem !important;
+}
+.card .card-body {
+    padding: 1.5rem 1.25rem !important;
+}
+.card .badge.bg-success {
+    background-color: #12b886 !important;
+    font-size: 0.95rem;
+    padding: 0.4em 0.9em;
+    border-radius: 0.7em;
+}
+.card .btn-outline-primary {
+    border-radius: 0.5rem !important;
+    font-weight: 500;
+}
+.card .btn-outline-primary:hover {
+    background-color: #fe424d;
+    color: #fff;
+    border-color: #fe424d;
+}

@@ -1,0 +1,26 @@
+<% layout("layouts/biolerplate.ejs") %>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4 text-center">
+          <div class="mb-3">
+            <i class="fa-solid fa-circle-check fa-3x text-success mb-2"></i>
+            <h2 class="mb-2">Booking Confirmed!</h2>
+            <div class="alert alert-success mb-4">
+              Your reservation for <b><%= booking.listing.title %></b> is confirmed.
+            </div>
+          </div>
+          <ul class="list-group mb-4 text-start">
+            <li class="list-group-item"><i class="fa-regular fa-calendar-days me-2"></i>Check-in: <b><%= booking.checkIn.toDateString() %></b></li>
+            <li class="list-group-item"><i class="fa-regular fa-calendar-days me-2"></i>Check-out: <b><%= booking.checkOut.toDateString() %></b></li>
+            <li class="list-group-item"><i class="fa-solid fa-user-group me-2"></i>Guests: <b><%= booking.guests %></b></li>
+            <li class="list-group-item"><i class="fa-solid fa-indian-rupee-sign me-2"></i>Base Price: <b>₹<%= booking.totalPrice %></b></li>
+            <li class="list-group-item"><i class="fa-solid fa-receipt me-2"></i>Total Price (incl. 18% GST): <b>₹<%= (booking.totalPrice * 1.18).toFixed(0) %></b> <span class="text-muted" style="font-size:0.95em;">(GST included)</span></li>
+          </ul>
+          <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-primary">Back to Listing</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

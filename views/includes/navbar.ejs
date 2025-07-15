@@ -57,9 +57,32 @@
             <a class="nav-link" href="/signup"><b>Sign up</b></a>
             <a class="nav-link" href="/login"><b>Login</b></a>
           <% } else { %>
-            <a class="nav-link" href="/logout"><b>Logout</b></a>
+            <a class="nav-link" href="/my-bookings"><b>My Bookings</b></a>
+            <% if(currentUser){ %>
+              <a class="nav-link" href="/host/bookings"><b>Host Bookings</b></a>
+            <% } %>
+            <button class="nav-link btn btn-link p-0" id="logoutBtn" type="button"><b>Logout</b></button>
           <% } %>
         </div>
       </div>
     </div>
   </nav>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to logout?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+      </div>
+    </div>
+  </div>
+</div>
