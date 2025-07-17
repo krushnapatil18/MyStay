@@ -256,3 +256,16 @@ body {
     color: #fff;
     border-color: #fe424d;
 }
+
+/* Flatpickr weekend highlight */
+.flatpickr-day.flatpickr-weekend {
+    background: #ffeaea;
+    color: #fe424d;
+    border-radius: 50% !important;
+}
+.flatpickr-day.flatpickr-weekend.selected,
+.flatpickr-day.flatpickr-weekend.startRange,
+.flatpickr-day.flatpickr-weekend.endRange {
+    background: #fe424d !important;
+    color: #fff !important;
+}

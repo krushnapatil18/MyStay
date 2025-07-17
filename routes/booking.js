@@ -3,6 +3,8 @@ const router = express.Router();
 const Listing = require("../models/listing.js");
 const Booking = require("../models/booking.js");
 const { isLoggedIn } = require("../middleware.js");
+const { sendMail } = require("../utils/email");
+const User = require("../models/user");
 
 // Show booking form
 router.get("/listings/:id/book", isLoggedIn, async (req, res) => {
@@ -11,7 +13,14 @@ router.get("/listings/:id/book", isLoggedIn, async (req, res) => {
     req.flash("error", "Listing not found");
     return res.redirect("/listings");
   }
-  res.render("bookings/book.ejs", { listing });
+  // Get all bookings for this listing that are not cancelled
+  const bookings = await Booking.find({ listing: listing._id, status: { $ne: "cancelled" } });
+  // Build an array of all booked date ranges
+  const bookedRanges = bookings.map(b => ({
+    from: b.checkIn.toISOString().split('T')[0],
+    to: b.checkOut.toISOString().split('T')[0]
+  }));
+  res.render("bookings/book.ejs", { listing, bookedRanges });
 });
 
 // Handle booking submission
@@ -57,6 +66,25 @@ router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
 
   await booking.save();
   req.flash("success", "Booking confirmed!");
+
+  // Send email notifications
+  try {
+    const guest = await User.findById(req.user._id);
+    const host = await User.findById(listing.owner);
+    await sendMail(
+      guest.email,
+      "Booking Confirmed!",
+      `<p>Your booking for <b>${listing.title}</b> is confirmed.</p>`
+    );
+    await sendMail(
+      host.email,
+      "New Booking Received!",
+      `<p>Your listing <b>${listing.title}</b> has a new booking from ${guest.username}.</p>`
+    );
+  } catch (e) {
+    console.error("Email send error:", e);
+  }
+
   res.redirect(`/bookings/${booking._id}/confirmation`);
 });
 
@@ -72,29 +100,45 @@ router.get("/bookings/:bookingId/confirmation", isLoggedIn, async (req, res) => 
 
 // Show all bookings for the logged-in user
 router.get("/my-bookings", isLoggedIn, async (req, res) => {
-  const bookings = await Booking.find({ user: req.user._id })
-    .populate("listing")
-    .sort({ checkIn: 1 });
-  res.render("bookings/myBookings.ejs", { bookings });
+  const { status } = req.query;
+  let filter = { user: req.user._id };
+  let bookings = await Booking.find(filter).populate("listing").sort({ checkIn: 1 });
+
+  if (status === "upcoming") {
+    bookings = bookings.filter(b => b.status !== "cancelled" && new Date(b.checkIn) > new Date());
+  } else if (status === "past") {
+    bookings = bookings.filter(b => b.status !== "cancelled" && new Date(b.checkOut) < new Date());
+  } else if (status === "cancelled") {
+    bookings = bookings.filter(b => b.status === "cancelled");
+  }
+
+  res.render("bookings/myBookings.ejs", { bookings, status });
 });
 
 // Show all bookings for listings owned by the current user (host)
 router.get("/host/bookings", isLoggedIn, async (req, res) => {
-  // Find all listings owned by the current user
+  const { status } = req.query;
   const listings = await Listing.find({ owner: req.user._id });
   const listingIds = listings.map(listing => listing._id);
 
-  // Find all bookings for those listings
-  const bookings = await Booking.find({ listing: { $in: listingIds } })
+  let bookings = await Booking.find({ listing: { $in: listingIds } })
     .populate("listing user")
     .sort({ checkIn: 1 });
 
-  res.render("bookings/hostBookings.ejs", { bookings });
+  if (status === "upcoming") {
+    bookings = bookings.filter(b => b.status !== "cancelled" && new Date(b.checkIn) > new Date());
+  } else if (status === "past") {
+    bookings = bookings.filter(b => b.status !== "cancelled" && new Date(b.checkOut) < new Date());
+  } else if (status === "cancelled") {
+    bookings = bookings.filter(b => b.status === "cancelled");
+  }
+
+  res.render("bookings/hostBookings.ejs", { bookings, status });
 });
 
 // Cancel a booking (guest)
 router.post("/bookings/:bookingId/cancel", isLoggedIn, async (req, res) => {
-  const booking = await Booking.findById(req.params.bookingId);
+  const booking = await Booking.findById(req.params.bookingId).populate("listing");
   if (!booking) {
     req.flash("error", "Booking not found");
     return res.redirect("/my-bookings");
@@ -112,6 +156,25 @@ router.post("/bookings/:bookingId/cancel", isLoggedIn, async (req, res) => {
   booking.status = "cancelled";
   await booking.save();
   req.flash("success", "Booking cancelled successfully");
+
+  // Send email notifications
+  try {
+    const guest = await User.findById(booking.user);
+    const host = await User.findById(booking.listing.owner);
+    await sendMail(
+      guest.email,
+      "Booking Cancelled",
+      `<p>Your booking for <b>${booking.listing.title}</b> has been cancelled.</p>`
+    );
+    await sendMail(
+      host.email,
+      "Booking Cancelled",
+      `<p>The booking for your listing <b>${booking.listing.title}</b> has been cancelled by the guest.</p>`
+    );
+  } catch (e) {
+    console.error("Email send error:", e);
+  }
+
   res.redirect("/my-bookings");
 });
 
@@ -156,6 +219,25 @@ router.post("/host/bookings/:bookingId/cancel", isLoggedIn, async (req, res) => 
   booking.status = "cancelled";
   await booking.save();
   req.flash("success", "Booking cancelled successfully");
+
+  // Send email notifications
+  try {
+    const guest = await User.findById(booking.user);
+    const host = await User.findById(booking.listing.owner);
+    await sendMail(
+      guest.email,
+      "Booking Cancelled by Host",
+      `<p>Your booking for <b>${booking.listing.title}</b> has been cancelled by the host.</p>`
+    );
+    await sendMail(
+      host.email,
+      "You Cancelled a Booking",
+      `<p>You have cancelled a booking for your listing <b>${booking.listing.title}</b>.</p>`
+    );
+  } catch (e) {
+    console.error("Email send error:", e);
+  }
+
   res.redirect("/host/bookings");
 });
 

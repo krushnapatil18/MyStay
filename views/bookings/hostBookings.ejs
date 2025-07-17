@@ -3,6 +3,15 @@
   <div class="row justify-content-center">
     <div class="col-md-10">
       <h2 class="mb-4">Bookings for My Listings</h2>
+      <form method="get" class="mb-4 d-flex gap-2">
+        <select name="status" class="form-select w-auto">
+          <option value="">All</option>
+          <option value="upcoming" <%= status === 'upcoming' ? 'selected' : '' %>>Upcoming</option>
+          <option value="past" <%= status === 'past' ? 'selected' : '' %>>Past</option>
+          <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+        </select>
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+      </form>
       <% if (bookings.length === 0) { %>
         <div class="alert alert-info">No bookings for your listings yet.</div>
       <% } else { %>

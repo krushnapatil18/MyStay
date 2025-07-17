@@ -25,6 +25,11 @@
               </div>
             </div>
             <div class="mb-3">
+              <span class="fw-bold" style="color: #fe424d; font-size: 1.1rem;">
+                <i class="fa-solid fa-indian-rupee-sign"></i> <%= listing.price %> <span class="fw-normal text-secondary">per night</span>
+              </span>
+            </div>
+            <div class="mb-3">
               <label for="guests" class="form-label">Guests <i class="fa-solid fa-user-group ms-1"></i></label>
               <input type="number" name="guests" id="guests" class="form-control" min="1" value="1" required>
             </div>
@@ -35,3 +40,35 @@
     </div>
   </div>
 </div>
+<script>
+  // Pass booked ranges from server to JS
+  const bookedRanges = <%- JSON.stringify(bookedRanges || []) %>;
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    function highlightWeekends(dObj, dStr, fp, dayElem) {
+      // 0 = Sunday, 6 = Saturday
+      if (dayElem.dateObj.getDay() === 0 || dayElem.dateObj.getDay() === 6) {
+        dayElem.classList.add('flatpickr-weekend');
+      }
+    }
+
+    flatpickr("#checkIn", {
+      minDate: "today",
+      disable: bookedRanges,
+      dateFormat: "Y-m-d",
+      onDayCreate: highlightWeekends,
+      onChange: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length) {
+          checkOutPicker.set('minDate', dateStr);
+        }
+      }
+    });
+    const checkOutPicker = flatpickr("#checkOut", {
+      minDate: "today",
+      disable: bookedRanges,
+      dateFormat: "Y-m-d",
+      onDayCreate: highlightWeekends
+    });
+  });
+</script>

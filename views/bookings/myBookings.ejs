@@ -3,6 +3,15 @@
   <div class="row justify-content-center">
     <div class="col-md-10">
       <h2 class="mb-4">My Bookings</h2>
+      <form method="get" class="mb-4 d-flex gap-2">
+        <select name="status" class="form-select w-auto">
+          <option value="">All</option>
+          <option value="upcoming" <%= status === 'upcoming' ? 'selected' : '' %>>Upcoming</option>
+          <option value="past" <%= status === 'past' ? 'selected' : '' %>>Past</option>
+          <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+        </select>
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+      </form>
       <% if (bookings.length === 0) { %>
         <div class="alert alert-info">You have no bookings yet.</div>
       <% } else { %>
@@ -10,36 +19,48 @@
           <% bookings.forEach(booking => { %>
             <div class="col-md-6 col-lg-4">
               <div class="card shadow-sm border-0 rounded-4 h-100">
-                <img src="<%= booking.listing.images && booking.listing.images[0] ? booking.listing.images[0].url : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80' %>" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">
-                <div class="card-body">
-                  <h5 class="card-title mb-1"><%= booking.listing.title %></h5>
-                  <div class="text-muted mb-2" style="font-size:0.95rem;"><i class="fa-solid fa-location-dot me-1"></i> <%= booking.listing.location %>, <%= booking.listing.country %></div>
-                  <div class="mb-2">
-                    <% if (booking.status === 'cancelled') { %>
-                      <span class="badge bg-secondary">Cancelled</span>
-                    <% } else { %>
-                      <span class="badge bg-success">Confirmed</span>
+                <% if (booking.listing) { %>
+                  <img src="<%= booking.listing.images && booking.listing.images[0] ? booking.listing.images[0].url : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80' %>" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><%= booking.listing.title %></h5>
+                    <div class="text-muted mb-2" style="font-size:0.95rem;"><i class="fa-solid fa-location-dot me-1"></i> <%= booking.listing.location %>, <%= booking.listing.country %></div>
+                    <div class="mb-2">
+                      <% if (booking.status === 'cancelled') { %>
+                        <span class="badge bg-secondary">Cancelled</span>
+                      <% } else { %>
+                        <span class="badge bg-success">Confirmed</span>
+                      <% } %>
+                    </div>
+                    <div class="mb-2"><i class="fa-regular fa-calendar-days me-1"></i> <b><%= booking.checkIn.toDateString() %></b> - <b><%= booking.checkOut.toDateString() %></b></div>
+                    <div class="mb-2"><i class="fa-solid fa-user-group me-1"></i> <%= booking.guests %> guests</div>
+                    <div class="mb-2"><i class="fa-solid fa-indian-rupee-sign me-1"></i> <b>₹<%= booking.totalPrice %></b></div>
+                    <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-primary btn-sm mt-2">View Listing</a>
+                    <% if (booking.status !== 'cancelled' && new Date(booking.checkIn) > new Date()) { %>
+                      <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="d-inline cancel-booking-form" data-booking-id="<%= booking._id %>">
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-2 cancel-booking-btn" data-booking-id="<%= booking._id %>">
+                          Cancel
+                        </button>
+                      </form>
+                    <% } %>
+                    <% if (booking.status === 'cancelled' || new Date(booking.checkOut) < new Date()) { %>
+                      <form action="/bookings/<%= booking._id %>/delete" method="POST" class="d-inline delete-booking-form" data-booking-id="<%= booking._id %>">
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2 delete-booking-btn" data-booking-id="<%= booking._id %>">
+                          <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                      </form>
                     <% } %>
                   </div>
-                  <div class="mb-2"><i class="fa-regular fa-calendar-days me-1"></i> <b><%= booking.checkIn.toDateString() %></b> - <b><%= booking.checkOut.toDateString() %></b></div>
-                  <div class="mb-2"><i class="fa-solid fa-user-group me-1"></i> <%= booking.guests %> guests</div>
-                  <div class="mb-2"><i class="fa-solid fa-indian-rupee-sign me-1"></i> <b>₹<%= booking.totalPrice %></b></div>
-                  <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-primary btn-sm mt-2">View Listing</a>
-                  <% if (booking.status !== 'cancelled' && new Date(booking.checkIn) > new Date()) { %>
-                    <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="d-inline cancel-booking-form" data-booking-id="<%= booking._id %>">
-                      <button type="button" class="btn btn-outline-danger btn-sm mt-2 cancel-booking-btn" data-booking-id="<%= booking._id %>">
-                        Cancel
-                      </button>
-                    </form>
-                  <% } %>
-                  <% if (booking.status === 'cancelled' || new Date(booking.checkOut) < new Date()) { %>
+                <% } else { %>
+                  <div class="card-body text-center d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
+                    <i class="fa-solid fa-triangle-exclamation fa-2x text-warning mb-2"></i>
+                    <div class="alert alert-warning mb-2 w-100">This listing has been removed or is no longer available.</div>
                     <form action="/bookings/<%= booking._id %>/delete" method="POST" class="d-inline delete-booking-form" data-booking-id="<%= booking._id %>">
                       <button type="button" class="btn btn-outline-secondary btn-sm mt-2 delete-booking-btn" data-booking-id="<%= booking._id %>">
                         <i class="fa-solid fa-trash"></i> Delete
                       </button>
                     </form>
-                  <% } %>
-                </div>
+                  </div>
+                <% } %>
               </div>
             </div>
           <% }) %>
