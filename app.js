@@ -81,7 +81,7 @@ passport.deserializeUser(User.deserializeUser());
 
 
 
-// Make currentUser available in all templates
+// Make currentUser available in all templates (must be before routes)
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
