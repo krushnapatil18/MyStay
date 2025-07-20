@@ -45,6 +45,38 @@
     border-radius: 50%;
     border: 2px solid #fe424d;
   }
+  /* Custom styles for login/signup buttons */
+  .mystay-signup-btn {
+    background: #fff;
+    color: #fe424d;
+    border: 2px solid #fe424d;
+    border-radius: 2rem;
+    font-weight: 600;
+    padding: 0.4rem 1.3rem;
+    margin-right: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+  .mystay-signup-btn:hover, .mystay-signup-btn:focus {
+    background: #fe424d;
+    color: #fff;
+    text-decoration: none;
+  }
+  .mystay-login-btn {
+    background: #fe424d;
+    color: #fff;
+    border: 2px solid #fe424d;
+    border-radius: 2rem;
+    font-weight: 600;
+    padding: 0.4rem 1.3rem;
+    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+  .mystay-login-btn:hover, .mystay-login-btn:focus {
+    background: #d7373f;
+    color: #fff;
+    text-decoration: none;
+  }
   @media (max-width: 768px) {
     .navbar-mystay .search-input { width: 100px; }
     .navbar-mystay .nav-center { justify-content: flex-start !important; }
@@ -70,8 +102,8 @@
       <div class="ms-auto d-flex align-items-center">
         <a class="nav-link p-0" href="/listings/new" style="color:#222; font-weight:500; margin-right: 0.5rem;">Host with MyStay</a>
         <% if (!currentUser) { %>
-          <a class="btn btn-outline-primary me-2" href="/signup"><b>Sign up</b></a>
-          <a class="btn btn-primary" href="/login"><b>Login</b></a>
+          <a class="mystay-signup-btn" href="/signup"><b>Sign up</b></a>
+          <a class="mystay-login-btn" href="/login"><b>Login</b></a>
         <% } else { %>
           <div class="dropdown">
             <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
