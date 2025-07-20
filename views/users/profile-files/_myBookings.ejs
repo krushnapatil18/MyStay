@@ -1,0 +1,117 @@
+<% if (bookings.length === 0) { %>
+  <div class="card shadow-sm mb-4"><div class="card-body text-muted">No bookings yet.</div></div>
+<% } else { %>
+  <div class="row g-4">
+    <% bookings.forEach(booking => { %>
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100">
+          <% if (booking.listing) { %>
+            <img src="<%= booking.listing.images && booking.listing.images[0] ? booking.listing.images[0].url : '/images/default-profile.png' %>" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">
+          <% } %>
+          <div class="card-body">
+            <h5 class="card-title mb-1"><%= booking.listing ? booking.listing.title : 'Listing deleted' %></h5>
+            <% if (booking.listing) { %>
+              <div class="text-muted mb-2" style="font-size:0.95rem;"><i class="fa-solid fa-location-dot me-1"></i> <%= booking.listing.location %>, <%= booking.listing.country %></div>
+            <% } %>
+            <div class="mb-2">
+              <% if (booking.status === 'cancelled') { %>
+                <span class="badge bg-secondary">Cancelled</span>
+              <% } else { %>
+                <span class="badge bg-success">Confirmed</span>
+              <% } %>
+            </div>
+            <div class="mb-2"><i class="fa-regular fa-calendar-days me-1"></i> <b><%= booking.checkIn.toDateString() %></b> - <b><%= booking.checkOut.toDateString() %></b></div>
+            <div class="mb-2"><i class="fa-solid fa-user-group me-1"></i> <%= booking.guests %> guests</div>
+            <div class="mb-2"><i class="fa-solid fa-indian-rupee-sign me-1"></i> <b>₹<%= booking.totalPrice %></b></div>
+            <% if (booking.listing) { %>
+              <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-primary btn-sm mt-2">View Listing</a>
+            <% } %>
+            <% if (booking.status !== 'cancelled' && new Date(booking.checkIn) > new Date()) { %>
+              <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="d-inline cancel-booking-form" data-booking-id="<%= booking._id %>">
+                <input type="hidden" name="fromProfile" value="true">
+                <button type="button" class="btn btn-outline-danger btn-sm mt-2 cancel-booking-btn" data-booking-id="<%= booking._id %>">Cancel</button>
+              </form>
+            <% } %>
+            <% if (booking.status === 'cancelled' || new Date(booking.checkOut) < new Date() || !booking.listing) { %>
+              <form action="/bookings/<%= booking._id %>/delete" method="POST" class="d-inline delete-booking-form" data-booking-id="<%= booking._id %>">
+                <input type="hidden" name="fromProfile" value="true">
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-2 delete-booking-btn" data-booking-id="<%= booking._id %>"><i class="fa-solid fa-trash"></i> Delete</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+<!-- Cancel Booking Confirmation Modal -->
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cancelBookingModalLabel">Confirm Cancellation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to cancel this booking? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Booking</button>
+        <button type="button" class="btn btn-danger" id="confirmCancelBookingBtn">Yes, Cancel Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Delete Booking Confirmation Modal -->
+<div class="modal fade" id="deleteBookingModal" tabindex="-1" aria-labelledby="deleteBookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteBookingModalLabel">Delete Booking</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to permanently delete this booking? This cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Booking</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBookingBtn">Yes, Delete Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Cancel/Delete booking modal logic for bookings tab
+let bookingIdToCancel = null;
+let formToSubmit = null;
+document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    bookingIdToCancel = this.getAttribute('data-booking-id');
+    formToSubmit = document.querySelector(`form.cancel-booking-form[data-booking-id='${bookingIdToCancel}']`);
+    const modal = new bootstrap.Modal(document.getElementById('cancelBookingModal'));
+    modal.show();
+  });
+});
+document.getElementById('confirmCancelBookingBtn').addEventListener('click', function() {
+  if (formToSubmit) {
+    formToSubmit.submit();
+  }
+});
+let bookingIdToDelete = null;
+let formToDelete = null;
+document.querySelectorAll('.delete-booking-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    bookingIdToDelete = this.getAttribute('data-booking-id');
+    formToDelete = document.querySelector(`form.delete-booking-form[data-booking-id='${bookingIdToDelete}']`);
+    const modal = new bootstrap.Modal(document.getElementById('deleteBookingModal'));
+    modal.show();
+  });
+});
+document.getElementById('confirmDeleteBookingBtn').addEventListener('click', function() {
+  if (formToDelete) {
+    formToDelete.submit();
+  }
+});
+</script> 

@@ -65,3 +65,39 @@ confirmDeleteReviewBtns.forEach(btn => {
     }
   });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.wishlist-form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const url = this.action;
+      const method = this.method;
+      const heartIcon = this.querySelector('i');
+      const countSpan = this.closest('.position-relative, .d-flex').querySelector('.wishlist-count');
+      try {
+        const res = await fetch(url, { method, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        if (res.ok) {
+          // Toggle heart icon
+          if (heartIcon.classList.contains('fa-regular')) {
+            heartIcon.classList.remove('fa-regular', 'text-danger');
+            heartIcon.classList.add('fa-solid', 'text-danger');
+            this.action = this.action.replace('/add', '/remove');
+            this.title = 'Remove from wishlist';
+          } else {
+            heartIcon.classList.remove('fa-solid', 'text-danger');
+            heartIcon.classList.add('fa-regular');
+            this.action = this.action.replace('/remove', '/add');
+            this.title = 'Add to wishlist';
+          }
+          // Update count if present
+          if (countSpan) {
+            const data = await res.json();
+            countSpan.textContent = data.wishlistCount;
+          }
+        }
+      } catch (err) {
+        alert('Could not update wishlist. Please try again.');
+      }
+    });
+  });
+});

@@ -19,6 +19,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const bookingRouter = require("./routes/booking.js");
+const wishlistRoutes = require('./routes/wishlist');
 
 // Connect to MongoDB
 
@@ -34,6 +35,7 @@ async function main(){
 const listingRouter = require("./routes/listing.js");
 const reviewsRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
+const reviewRouter = require("./routes/review.js");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -103,7 +105,9 @@ app.get('/', (req, res) => {
 // listing routes, review routes, user routes
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
+app.use("/reviews", reviewRouter);
 app.use("/", userRouter);
+app.use('/wishlist', wishlistRoutes);
 
 app.use("/", bookingRouter);
 

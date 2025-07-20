@@ -11,8 +11,23 @@
 </script>
 
 <div class="row mt-3">
-  <div class="col-8 offset-3">
+  <div class="col-8 offset-3 d-flex align-items-center">
     <h3><%= listing.title %></h3>
+    <% if (currentUser && String(listing.owner._id) !== String(currentUser._id)) { %>
+      <% if (currentUser.wishlist && currentUser.wishlist.includes(String(listing._id))) { %>
+        <form action="/wishlist/<%= listing._id %>/remove" method="POST" class="wishlist-form ms-3">
+          <button type="submit" class="btn btn-link p-0" title="Remove from wishlist">
+            <i class="fa-solid fa-heart text-danger fs-3"></i>
+          </button>
+        </form>
+      <% } else { %>
+        <form action="/wishlist/<%= listing._id %>/add" method="POST" class="wishlist-form ms-3">
+          <button type="submit" class="btn btn-link p-0" title="Add to wishlist">
+            <i class="fa-regular fa-heart fs-3"></i>
+          </button>
+        </form>
+      <% } %>
+    <% } %>
   </div>
 </div>
 

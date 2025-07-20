@@ -1,0 +1,76 @@
+<% if (reviews.length === 0) { %>
+  <div class="card shadow-sm mb-4"><div class="card-body text-muted">No reviews yet.</div></div>
+<% } else { %>
+  <div class="row g-4">
+    <% reviews.forEach(review => { %>
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 p-2" style="background: #f9f9f9;">
+          <div class="d-flex align-items-center mb-2">
+            <% if (review.listing && review.listing.images && review.listing.images[0]) { %>
+              <img src="<%= review.listing.images[0].url %>" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
+            <% } else { %>
+              <img src="/images/default-profile.png" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
+            <% } %>
+            <div>
+              <div class="fw-bold mb-1" style="font-size:1.1rem;">
+                <%= review.listing ? review.listing.title : 'Listing deleted' %>
+              </div>
+              <div class="text-muted" style="font-size:0.95rem;">
+                <i class="fa-solid fa-location-dot me-1"></i>
+                <%= review.listing ? review.listing.location + ', ' + review.listing.country : '' %>
+              </div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <% for (let i = 1; i <= 5; i++) { %>
+              <i class="fa-star <%= i <= review.rating ? 'fa-solid text-warning' : 'fa-regular text-muted' %>"></i>
+            <% } %>
+          </div>
+          <div class="mb-2" style="min-height: 48px;">
+            <small><%= review.comment %></small>
+          </div>
+          <form action="<%= review.listing ? `/listings/${review.listing._id}/reviews/${review._id}?_method=DELETE` : `/reviews/${review._id}?_method=DELETE` %>" method="POST" class="d-inline delete-review-form mt-2" data-review-id="<%= review._id %>">
+            <button type="button" class="btn btn-outline-danger btn-sm delete-review-btn" data-review-id="<%= review._id %>"><i class="fa-solid fa-trash"></i> Delete</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+<!-- Delete Review Confirmation Modal -->
+<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteReviewModalLabel">Delete Review</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to permanently delete this review? This cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Review</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteReviewBtn">Yes, Delete Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Delete review modal logic for reviews tab
+let reviewIdToDelete = null;
+let reviewFormToDelete = null;
+document.querySelectorAll('.delete-review-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    reviewIdToDelete = this.getAttribute('data-review-id');
+    reviewFormToDelete = document.querySelector(`form.delete-review-form[data-review-id='${reviewIdToDelete}']`);
+    const modal = new bootstrap.Modal(document.getElementById('deleteReviewModal'));
+    modal.show();
+  });
+});
+document.getElementById('confirmDeleteReviewBtn').addEventListener('click', function() {
+  if (reviewFormToDelete) {
+    reviewFormToDelete.submit();
+  }
+});
+</script> 

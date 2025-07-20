@@ -269,3 +269,19 @@ body {
     background: #fe424d !important;
     color: #fff !important;
 }
+
+.profile-pic-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.profile-pic-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.profile-pic-wrapper:hover .profile-pic-overlay {
+  opacity: 1;
+}

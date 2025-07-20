@@ -1,0 +1,34 @@
+<% layout("layouts/biolerplate.ejs") %>
+<div class="container mt-5">
+  <h2 class="mb-4">My Wishlist</h2>
+  <% if (wishlist && wishlist.length > 0) { %>
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4">
+      <% wishlist.forEach(function(listing) { %>
+        <div class="col">
+          <div class="card listing-card position-relative">
+            <a href="/listings/<%= listing._id %>" class="listing-links">
+              <% if (listing.images && listing.images.length > 0) { %>
+                <img src="<%= listing.images[0].url %>" class="card-img-top" alt="listing image" style="height: 16rem;">
+              <% } else { %>
+                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="card-img-top" alt="default listing image" style="height: 16rem;">
+              <% } %>
+              <div class="card-body">
+                <h5 class="card-title"><%= listing.title %></h5>
+                <p class="card-text">&#8377; <%= listing.price.toLocaleString("en-IN") %> / night</p>
+                <p class="card-text"><%= listing.location %></p>
+              </div>
+            </a>
+            <form action="/wishlist/<%= listing._id %>/remove" method="POST" class="position-absolute top-0 end-0 m-2">
+              <button type="submit" class="btn btn-link p-0" title="Remove from wishlist">
+                <i class="fa-solid fa-heart text-danger fs-4"></i>
+              </button>
+            </form>
+            <!-- Wishlist count removed -->
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info">Your wishlist is empty. Start adding your favorite listings!</div>
+  <% } %>
+</div> 

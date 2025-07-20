@@ -141,17 +141,17 @@ router.post("/bookings/:bookingId/cancel", isLoggedIn, async (req, res) => {
   const booking = await Booking.findById(req.params.bookingId).populate("listing");
   if (!booking) {
     req.flash("error", "Booking not found");
-    return res.redirect("/my-bookings");
+    return res.redirect(req.body.fromProfile ? "/profile" : "/my-bookings");
   }
   // Only the user who made the booking can cancel
   if (!booking.user.equals(req.user._id)) {
     req.flash("error", "You are not authorized to cancel this booking");
-    return res.redirect("/my-bookings");
+    return res.redirect(req.body.fromProfile ? "/profile" : "/my-bookings");
   }
   // Only allow cancellation if not already cancelled and check-in is in the future
   if (booking.status === "cancelled" || new Date(booking.checkIn) <= new Date()) {
     req.flash("error", "This booking cannot be cancelled");
-    return res.redirect("/my-bookings");
+    return res.redirect(req.body.fromProfile ? "/profile" : "/my-bookings");
   }
   booking.status = "cancelled";
   await booking.save();
@@ -175,7 +175,8 @@ router.post("/bookings/:bookingId/cancel", isLoggedIn, async (req, res) => {
     console.error("Email send error:", e);
   }
 
-  res.redirect("/my-bookings");
+  const redirectTo = req.body.fromProfile ? "/profile" : "/my-bookings";
+  res.redirect(redirectTo);
 });
 
 // Delete a booking (guest)
@@ -183,21 +184,22 @@ router.post("/bookings/:bookingId/delete", isLoggedIn, async (req, res) => {
   const booking = await Booking.findById(req.params.bookingId);
   if (!booking) {
     req.flash("error", "Booking not found");
-    return res.redirect("/my-bookings");
+    return res.redirect(req.body.fromProfile ? "/profile" : "/my-bookings");
   }
   // Only the user who made the booking can delete
   if (!booking.user.equals(req.user._id)) {
     req.flash("error", "You are not authorized to delete this booking");
-    return res.redirect("/my-bookings");
+    return res.redirect(req.body.fromProfile ? "/profile" : "/my-bookings");
   }
   // Only allow deletion if booking is cancelled or check-out is in the past
   if (booking.status !== "cancelled" && new Date(booking.checkOut) > new Date()) {
     req.flash("error", "You can only delete cancelled or completed bookings");
-    return res.redirect("/my-bookings");
+    return res.redirect(req.body.fromProfile ? "/profile" : "/my-bookings");
   }
   await booking.deleteOne();
   req.flash("success", "Booking deleted successfully");
-  res.redirect("/my-bookings");
+  const redirectTo = req.body.fromProfile ? "/profile" : "/my-bookings";
+  res.redirect(redirectTo);
 });
 
 // Host cancels a booking for their listing

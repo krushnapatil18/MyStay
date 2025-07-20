@@ -62,26 +62,41 @@
             <% } %>
         <% } else { %>
             <% for(let listing of allListings){ %>
-                <a href="/listings/<%= listing._id %>" class="listing-links">
-                <div class="card listing-card" >
-                    <% if (listing.images && listing.images.length > 0) { %>
-                        <img src="<%= listing.images[0].url %>" class="card-img-top" alt="listing image" style="height: 20rem;">
-                    <% } else { %>
-                        <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="card-img-top" alt="default listing image" style="height: 20rem;">
+                <div class="position-relative">
+                    <a href="/listings/<%= listing._id %>" class="listing-links">
+                        <div class="card listing-card" >
+                            <% if (listing.images && listing.images.length > 0) { %>
+                                <img src="<%= listing.images[0].url %>" class="card-img-top" alt="listing image" style="height: 20rem;">
+                            <% } else { %>
+                                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="card-img-top" alt="default listing image" style="height: 20rem;">
+                            <% } %>
+                            <div class="card-img-overlay"></div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <b><%= listing.title %> </b> <br/>
+                                    &#8377; <%= listing.price.toLocaleString("en-IN")%> / night
+                                    <i class="tax-info"> &nbsp; &nbsp; +18% GST</i>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    <% if (currentUser && String(listing.owner._id) !== String(currentUser._id)) { %>
+                        <% if (currentUser.wishlist && currentUser.wishlist.includes(listing._id)) { %>
+                            <form action="/wishlist/<%= listing._id %>/remove" method="POST" class="wishlist-form position-absolute top-0 end-0 m-2">
+                                <button type="submit" class="btn btn-link p-0" title="Remove from wishlist">
+                                    <i class="fa-solid fa-heart text-danger fs-4"></i>
+                                </button>
+                            </form>
+                        <% } else { %>
+                            <form action="/wishlist/<%= listing._id %>/add" method="POST" class="wishlist-form position-absolute top-0 end-0 m-2">
+                                <button type="submit" class="btn btn-link p-0" title="Add to wishlist">
+                                    <i class="fa-regular fa-heart fs-4"></i>
+                                </button>
+                            </form>
+                        <% } %>
                     <% } %>
-                    <div class="card-img-overlay"></div>
-            
-                    <div class="card-body">
-                      <p class="card-text">
-                       <b><%= listing.title %> </b> <br/>
-                        
-                       &#8377; <%= listing.price.toLocaleString("en-IN")%> / night
-                       <i class="tax-info"> &nbsp; &nbsp; +18% GST</i>
-                      </p>
-                    </div>
                 </div>
-                </a>
-             <% } %>
+            <% } %>
         <% } %>
     </div>
 </body>

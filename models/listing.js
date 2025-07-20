@@ -86,7 +86,10 @@ const listingSchema = new Schema({
       required: true
     }
   },
-  
+  wishlistCount: {
+    type: Number,
+    default: 0
+  }
 });
 
 listingSchema.post("findOneAndDelete", async (listing) =>{

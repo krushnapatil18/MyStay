@@ -1,73 +1,99 @@
 <style>
-
-
-    .search-btn {
-        background-color: #fe424d;
-        color: #fff;
-        border: none;
-        border-radius: 0.5rem;
-    }
-    .search-btn:hover {
-        background-color: #fe424d;
-        color: #fff;
-        border: none;
-        border-radius: 0.5rem;
-    }
-    .search-btn i {
-      display: inline;
-      margin-right: 0.5rem;
-    }
-    .search-input {
-      padding: 0.5rem 5rem 0.5rem 5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-    }
+  .navbar-mystay {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-bottom: 1px solid #eee;
+    font-family: inherit;
+  }
+  .navbar-mystay .navbar-brand {
+    color: #fe424d;
+    font-weight: bold;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+  }
+  .navbar-mystay .nav-link {
+    color: #222;
+    font-weight: 500;
+    margin: 0 0.5rem;
+    transition: color 0.2s;
+  }
+  .navbar-mystay .nav-link.active, .navbar-mystay .nav-link:hover {
+    color: #fe424d;
+  }
+  .navbar-mystay .search-input {
+    width: 180px;
+    transition: width 0.3s;
+    border-radius: 2rem;
+    border: 1px solid #eee;
+    background: #fafafa;
+  }
+  .navbar-mystay .search-btn {
+    background: #fe424d;
+    color: #fff;
+    border-radius: 2rem;
+    border: none;
+    margin-left: 0.5rem;
+    padding: 0.4rem 1.2rem;
+  }
+  .navbar-mystay .search-btn:hover {
+    background: #e63b3b;
+  }
+  .navbar-mystay .navbar-profile-img {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #fe424d;
+  }
+  @media (max-width: 768px) {
+    .navbar-mystay .search-input { width: 100px; }
+    .navbar-mystay .nav-center { justify-content: flex-start !important; }
+  }
 </style>
-
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/"><i class="fa-solid fa-compass"></i> </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-link" href="/listings">Explore</a>
-        </div>
-
-        <div class="navbar-nav ms-auto">
-          <form class="d-flex" role="search" method="GET" action="/listings">
-            <input
-              class="form-control me-2 search-input"
-              type="search"
-              name="search"
-              placeholder="Search destinations"
-              aria-label="Search"
-            />
-            <button class="btn search-btn" type="submit">
-              <i class="fa-solid fa-magnifying-glass"></i></button>
-          </form>
-        </div>
-
-        <div class="navbar-nav ms-auto">
-          <a class="nav-link" href="/listings/new">Host with MyStay</a>
-          <% if(!currentUser){ %>
-            <a class="nav-link" href="/signup"><b>Sign up</b></a>
-            <a class="nav-link" href="/login"><b>Login</b></a>
-          <% } else { %>
-            <a class="nav-link" href="/my-bookings"><b>My Bookings</b></a>
-            <% if(currentUser){ %>
-              <a class="nav-link" href="/host/bookings"><b>Host Bookings</b></a>
-            <% } %>
-            <button class="nav-link btn btn-link p-0" id="logoutBtn" type="button"><b>Logout</b></button>
-          <% } %>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-mystay sticky-top">
+  <div class="container-fluid d-flex align-items-center">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <img src="/assest/MyStay.png" alt="MyStay Logo" style="height: 60px; width: auto; object-fit: contain; margin-right: 0.5rem;">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse flex-grow-1" id="navbarMain">
+      <div class="d-flex flex-grow-1 align-items-center position-relative">
+        <form class="d-flex align-items-center mx-auto mb-0" role="search" method="GET" action="/listings" style="max-width: 400px; min-width: 220px;">
+          <input class="form-control search-input" type="search" name="search" placeholder="Search destinations" aria-label="Search" />
+          <button class="btn search-btn" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </form>
+      </div>
+      <div class="ms-auto d-flex align-items-center">
+        <a class="nav-link p-0" href="/listings/new" style="color:#222; font-weight:500; margin-right: 0.5rem;">Host with MyStay</a>
+        <% if (!currentUser) { %>
+          <a class="btn btn-outline-primary me-2" href="/signup"><b>Sign up</b></a>
+          <a class="btn btn-primary" href="/login"><b>Login</b></a>
+        <% } else { %>
+          <div class="dropdown">
+            <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <% if (currentUser.profilePic) { %>
+                <img src="<%= currentUser.profilePic %>" alt="Profile" class="navbar-profile-img me-2">
+              <% } else { %>
+                <i class="fa-solid fa-user-circle fa-2x me-2 text-secondary"></i>
+              <% } %>
+              <span class="d-none d-md-inline"><%= currentUser.username %></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+              <li><a class="dropdown-item" href="/profile"><i class="fa-solid fa-user"></i> Profile</a></li>
+              <li><a class="dropdown-item" href="/wishlist"><i class="fa-solid fa-heart"></i> Wishlist</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+            </ul>
+          </div>
+        <% } %>
       </div>
     </div>
-  </nav>
-
+  </div>
+</nav>
 <!-- Logout Confirmation Modal -->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -86,3 +112,14 @@
     </div>
   </div>
 </div>
+<script>
+// Show logout modal on dropdown logout click
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const modal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    modal.show();
+  });
+}
+</script>
